@@ -1,0 +1,33 @@
+plugins {
+    id("war")
+    id("java")
+}
+
+group = 'org.annotation'
+version = '1.0-SNAPSHOT'
+
+ext {
+    TOMCAT_HOME = "/Users/lakshman-18578/Workspace/tomcat/apache-tomcat-10.1.23"
+}
+
+war {
+    println("War task executing")
+    archiveBaseName='ROOT'
+    archiveVersion=''
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+
+    compileOnly group: 'jakarta.servlet', name: 'jakarta.servlet-api', version: '6.0.0'
+    implementation group: 'org.springframework', name: 'spring-webmvc', version: '6.1.6'
+
+    implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.17.0'
+    implementation group: 'com.fasterxml.jackson.core', name: 'jackson-annotations', version: '2.17.0'
+
+    implementation group: 'com.google.guava', name: 'guava', version: '33.2.0-jre'
+}
+
