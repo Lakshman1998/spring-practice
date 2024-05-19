@@ -16,4 +16,5 @@ public class ResourceDetails {
     private boolean isFullVideo;
     private String contentType;
     private String unit;
+    private Long totalSize;
 }

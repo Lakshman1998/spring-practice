@@ -34,15 +34,17 @@ public class ResourceServlet extends HttpServlet {
         }
         try {
             ResourceDetails resourceDetails = getChunksWithStartAndEnd(0L, start, end);
-            ServletOutputStream servletOutputStream = response.getOutputStream();
-            servletOutputStream.write(resourceDetails.getBytes());
+            try(ServletOutputStream servletOutputStream = response.getOutputStream()) {
+                servletOutputStream.write(resourceDetails.getBytes());
+            }
             response.setStatus(HttpServletResponse.SC_PARTIAL_CONTENT);
             response.setHeader(CONTENT_TYPE, resourceDetails.getContentType());
             response.setHeader(ACCEPT_RANGE, resourceDetails.getUnit());
             response.setHeader(CONTENT_LENGTH, String.valueOf(resourceDetails.getChunkSize()));
-            response.setHeader(CONTENT_RANGE, String.format("bytes %s-%s/%s", resourceDetails.getRangeStart(), resourceDetails.getRangeEnd(), resourceDetails.getChunkSize()));
+            response.setHeader(CONTENT_RANGE, String.format("bytes %s-%s/%s", resourceDetails.getRangeStart(), resourceDetails.getRangeEnd(), resourceDetails.getTotalSize()));
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            LOGGER.log(Level.SEVERE, "Error while processing video stream", e);
+            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -58,21 +60,17 @@ public class ResourceServlet extends HttpServlet {
             byte[] buffer = new byte[chunkSize];
             LOGGER.log(Level.INFO, String.format("Video range from %s and %s", start, end));
             bufferedInputStream.skip(start);
-
             int bytesRead;
             int totalBytesRead = 0;
             while ((bytesRead = bufferedInputStream.read(buffer, totalBytesRead, chunkSize - totalBytesRead)) != -1 && totalBytesRead < chunkSize) {
                 totalBytesRead += bytesRead;
             }
-
-            LOGGER.log(Level.INFO, String.format("Completed Reading video files chunk size of %s", buffer.length));
             ResourceDetails resourceDetails = ResourceDetails.builder()
                     .bytes(buffer).chunkSize(chunkSize)
                     .rangeStart(start).rangeEnd(end)
                     .unit("bytes").contentType("video/mp4")
-                    .isFullVideo(isFullVideo)
+                    .isFullVideo(isFullVideo).totalSize(resource.getFile().length())
                     .build();
-            bufferedInputStream.close();
             return resourceDetails;
         }
     }
