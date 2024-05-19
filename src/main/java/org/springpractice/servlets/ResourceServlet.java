@@ -34,14 +34,14 @@ public class ResourceServlet extends HttpServlet {
         }
         try {
             ResourceDetails resourceDetails = getChunksWithStartAndEnd(0L, start, end);
-            try(ServletOutputStream servletOutputStream = response.getOutputStream()) {
-                servletOutputStream.write(resourceDetails.getBytes());
-            }
             response.setStatus(HttpServletResponse.SC_PARTIAL_CONTENT);
             response.setHeader(CONTENT_TYPE, resourceDetails.getContentType());
             response.setHeader(ACCEPT_RANGE, resourceDetails.getUnit());
             response.setHeader(CONTENT_LENGTH, String.valueOf(resourceDetails.getChunkSize()));
             response.setHeader(CONTENT_RANGE, String.format("bytes %s-%s/%s", resourceDetails.getRangeStart(), resourceDetails.getRangeEnd(), resourceDetails.getTotalSize()));
+            try(ServletOutputStream servletOutputStream = response.getOutputStream()) {
+                servletOutputStream.write(resourceDetails.getBytes());
+            }
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "Error while processing video stream", e);
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
