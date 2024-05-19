@@ -65,13 +65,12 @@ public class ResourceServlet extends HttpServlet {
             while ((bytesRead = bufferedInputStream.read(buffer, totalBytesRead, chunkSize - totalBytesRead)) != -1 && totalBytesRead < chunkSize) {
                 totalBytesRead += bytesRead;
             }
-            ResourceDetails resourceDetails = ResourceDetails.builder()
+            return ResourceDetails.builder()
                     .bytes(buffer).chunkSize(chunkSize)
                     .rangeStart(start).rangeEnd(end)
                     .unit("bytes").contentType("video/mp4")
                     .isFullVideo(isFullVideo).totalSize(resource.getFile().length())
                     .build();
-            return resourceDetails;
         }
     }
 }
