@@ -26,7 +26,7 @@ public class ResourceServlet extends HttpServlet {
         int start = 0;
         int end = Integer.MAX_VALUE;
         if(range != null && !range.isEmpty()) {
-            String[] startAndEnd = range.replace("byte=", "").split("-");
+            String[] startAndEnd = range.replace("bytes=", "").split("-");
             start = Integer.parseInt(startAndEnd[0]);
             if(startAndEnd.length == 2) {
                 end = Integer.parseInt(startAndEnd[1]);
@@ -36,6 +36,7 @@ public class ResourceServlet extends HttpServlet {
             ResourceDetails resourceDetails = getChunksWithStartAndEnd(0L, start, end);
             ServletOutputStream servletOutputStream = response.getOutputStream();
             servletOutputStream.write(resourceDetails.getBytes());
+            response.setStatus(HttpServletResponse.SC_PARTIAL_CONTENT);
             response.setHeader(CONTENT_TYPE, resourceDetails.getContentType());
             response.setHeader(ACCEPT_RANGE, resourceDetails.getUnit());
             response.setHeader(CONTENT_LENGTH, String.valueOf(resourceDetails.getChunkSize()));
@@ -50,13 +51,20 @@ public class ResourceServlet extends HttpServlet {
         try (BufferedInputStream bufferedInputStream = new BufferedInputStream(resource.getInputStream())) {
             boolean isFullVideo = false;
             if(end == Integer.MAX_VALUE) {
-                end = (int) resource.getFile().length();
+                end = (int) resource.getFile().length() - 1;
                 isFullVideo = true;
             }
             int chunkSize = end - start + 1;
             byte[] buffer = new byte[chunkSize];
             LOGGER.log(Level.INFO, String.format("Video range from %s and %s", start, end));
-            bufferedInputStream.read(buffer, start, end);
+            bufferedInputStream.skip(start);
+
+            int bytesRead;
+            int totalBytesRead = 0;
+            while ((bytesRead = bufferedInputStream.read(buffer, totalBytesRead, chunkSize - totalBytesRead)) != -1 && totalBytesRead < chunkSize) {
+                totalBytesRead += bytesRead;
+            }
+
             LOGGER.log(Level.INFO, String.format("Completed Reading video files chunk size of %s", buffer.length));
             ResourceDetails resourceDetails = ResourceDetails.builder()
                     .bytes(buffer).chunkSize(chunkSize)
