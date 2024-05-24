@@ -30,5 +30,9 @@ dependencies {
     implementation group: 'com.google.guava', name: 'guava', version: '33.2.0-jre'
     implementation group: 'org.projectlombok', name: 'lombok', version: '1.18.30'
     annotationProcessor group: 'org.projectlombok', name: 'lombok', version: '1.18.30'
+    implementation group: 'io.vavr', name: 'vavr', version: '0.10.4'
+
+    implementation group: 'org.springframework.data', name: 'spring-data-jpa', version: '3.3.0'
+    implementation group: 'org.postgresql', name: 'postgresql', version: '42.7.3'
 }
 

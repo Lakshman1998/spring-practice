@@ -1,5 +1,6 @@
 package org.springpractice;
 
+import jakarta.servlet.FilterRegistration;
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.ServletRegistration;
 import jakarta.servlet.http.HttpServlet;
@@ -7,6 +8,7 @@ import org.springframework.web.WebApplicationInitializer;
 import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
 import org.springframework.web.servlet.DispatcherServlet;
 import org.springpractice.configurations.WebMvcConfigurerImpl;
+import org.springpractice.filters.CorsFilter;
 import org.springpractice.servlets.ResourceServlet;
 
 import java.util.logging.Level;
@@ -28,6 +30,10 @@ public class WebApplicationInitializerImpl implements WebApplicationInitializer 
         HttpServlet helloServlet = new ResourceServlet();
         ServletRegistration.Dynamic helloSerlvetRegistration = servletContext.addServlet("helloservlet", helloServlet);
         helloSerlvetRegistration.addMapping("/resource/*");
+
+        // Filter registration
+        FilterRegistration.Dynamic corsFilterRegistration = servletContext.addFilter("CorsFilter", new CorsFilter());
+        corsFilterRegistration.addMappingForUrlPatterns(null, false, "/app/*");
 
         LOGGER.log(Level.INFO, "========= Server start successfully =======");
     }
