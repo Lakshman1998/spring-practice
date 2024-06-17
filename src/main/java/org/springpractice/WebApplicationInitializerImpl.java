@@ -1,15 +1,12 @@
 package org.springpractice;
 
-import jakarta.servlet.FilterRegistration;
+import com.google.common.base.Strings;
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.ServletRegistration;
-import jakarta.servlet.http.HttpServlet;
 import org.springframework.web.WebApplicationInitializer;
 import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
 import org.springframework.web.servlet.DispatcherServlet;
 import org.springpractice.configurations.WebMvcConfigurerImpl;
-import org.springpractice.filters.CorsFilter;
-import org.springpractice.servlets.ResourceServlet;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -25,15 +22,14 @@ public class WebApplicationInitializerImpl implements WebApplicationInitializer 
         DispatcherServlet dispatcherServlet = new DispatcherServlet(webContext);
         ServletRegistration.Dynamic servletRegistration = servletContext.addServlet("app", dispatcherServlet);
         servletRegistration.setLoadOnStartup(1);
-        servletRegistration.addMapping("/app/*");
-
-        HttpServlet helloServlet = new ResourceServlet();
-        ServletRegistration.Dynamic helloSerlvetRegistration = servletContext.addServlet("helloservlet", helloServlet);
-        helloSerlvetRegistration.addMapping("/resource/*");
+        String contextPath = servletContext.getContextPath();
+        LOGGER.log(Level.INFO, String.format("Servlet context path: %s", contextPath));
+        String servletMapping = Strings.isNullOrEmpty(contextPath) ? "/*" : String.format("/%s/*", contextPath);
+        servletRegistration.addMapping(servletMapping);
 
         // Filter registration
-        FilterRegistration.Dynamic corsFilterRegistration = servletContext.addFilter("CorsFilter", new CorsFilter());
-        corsFilterRegistration.addMappingForUrlPatterns(null, false, "/app/*");
+//        FilterRegistration.Dynamic corsFilterRegistration = servletContext.addFilter("CorsFilter", new CorsFilter());
+//        corsFilterRegistration.addMappingForUrlPatterns(null, false, "/app/*");
 
         LOGGER.log(Level.INFO, "========= Server start successfully =======");
     }

@@ -3,8 +3,9 @@ package org.springpractice.services;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springpractice.daos.FirstDao;
+import org.springpractice.models.FirstPojo;
 
-import java.util.Map;
+import java.util.List;
 
 @Service
 public class FirstService {
@@ -16,7 +17,7 @@ public class FirstService {
         this.firstDao = firstDao;
     }
 
-    public Map<String, Object> executeFirstService() {
+    public List<FirstPojo> executeFirstService() {
         return firstDao.getResultFromFirstDAO();
     }
 }
